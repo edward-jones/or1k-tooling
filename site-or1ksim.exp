@@ -20,7 +20,7 @@ global target_list
 case "$target_triplet" in {
     { "or1k-*elf" } {
 	set target_triplet "or1k-unknown-elf"
-        set target_list { "or1k-elf-openocd" }
+        set target_list { "or1k-elf-or1ksim" }
     }
     { "or1k-*linux*" } {
 	set target_triplet "or1k-unknown-gnu-linux"
