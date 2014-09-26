@@ -259,9 +259,8 @@ runTests() {
     export PATH=${OR1KSIM_INSTALL}/bin:${PATH}
 
     # set up environment to find the test tools
-    export DEJAGNU=${OR1K_TOOLING}/site-sim.exp
+    export DEJAGNU=${OR1K_TOOLING}/site-or1ksim.exp
     export DEJAGNULIBS=${INSTALL}/share/dejagnu
-    export LD_LIBRARY_PATH=${OR1KSIM_INSTALL}/lib:${LD_LIBRARY_PATH}
 
     # ensure there's a symlink to clang so it cross compiles when testing
     ln -sf ${INSTALL}/bin/clang ${INSTALL}/bin/or1k-elf-clang
