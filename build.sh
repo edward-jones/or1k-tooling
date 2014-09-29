@@ -9,6 +9,13 @@
 
 BASEDIR=`pwd`
 
+# for make
+PARALLEL="-j12"
+
+# Beware: the install directory and build directories will be nuked at the
+# start of a clean build
+INSTALL=${BASEDIR}/install
+
 BINUTILS_BUILD=${BASEDIR}/build/binutils
 BINUTILS_SRC=${BASEDIR}/or1k-src
 
@@ -36,10 +43,6 @@ DEJAGNU_BUILD=${BASEDIR}/build/dejagnu
 DEJAGNU_SRC=${BASEDIR}/or1k-dejagnu
 
 OR1K_TOOLING=${BASEDIR}/or1k-tooling
-
-INSTALL=${BASEDIR}/install
-PARALLEL="-j12"
-
 
 # Set terminal title                                                            
 # @param string $1  Tab/window title                                            
@@ -105,7 +108,8 @@ compilerrtConfig() {
       -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Debug > config.log 2>&1
 }
 
-# should be built after clang, binutils and or1ksim
+# should be built after clang, binutils and or1ksim. Testing with or1ksim is
+# done via gdb so I don't think it's really necessary to link against it.
 newlibConfig() {
     rm -rf ${NEWLIB_BUILD}
 
@@ -138,7 +142,7 @@ cruntimeConfig() {
       -DCMAKE_CXX_COMPILER=${INSTALL}/bin/clang++ > config.log 2>&1
 }
 
-# build gcc cross-compiler for or1k tests, may need to be done after newlib
+# configure gcc cross-compiler for or1k tests, may need to be done after newlib
 # built.
 gccConfig() {
     rm -rf ${GCC_BUILD}
@@ -265,17 +269,18 @@ runTests() {
     # ensure there's a symlink to clang so it cross compiles when testing
     ln -sf ${INSTALL}/bin/clang ${INSTALL}/bin/or1k-elf-clang
 
+    # start or1ksim to run the execution tests
+    # give it the desired port and basic memory setup
+    # chuck output in the base directory
+    # ? not sure what or1ksim does for the default configuration
+    nameTerminal "Starting or1ksim in the background"
+    ${OR1KSIM_INSTALL}/bin/sim -m8M --srv=50001 > ${BASEDIR}/test.log 2>&1 &
+
+    export CC_UNDER_TEST=${INSTALL}/bin/or1k-elf-clang
+
     # run gcc tests using clang, the above symlink probably isn't necessary
     cd ${GCC_BUILD}/gcc
-    make check-gcc CC_UNDER_TEST=${INSTALL}/bin/or1k-elf-clang
-
-    # run tests using clang, output to gcc.log in testsuite/gcc
-    # believe the temporaries are placed in cwd
-    # also believe it searches for site.exp in cwd
-    # ${INSTALL}/bin/runtest --tool gcc \
-    #  --tool_exec ${INSTALL}/bin/or1k-elf-clang \
-    #  --srcdir ${GCC_SRC}/gcc/testsuite --outdir ${LLVM_BUILD} \
-    #  --target=or1k-elf
+    make check-gcc
 }
 
 if [ "$1" = "bootstrap" ]; then
