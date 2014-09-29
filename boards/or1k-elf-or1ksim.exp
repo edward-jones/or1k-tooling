@@ -13,7 +13,7 @@ process_multilib_options ""
 
 # Specify compilers to use
 set_board_info compiler [find_gcc]
-set_board_info cflags    "-mnewlib"
+#set_board_info cflags    "-mnewlib"
 
 # GDB protocol to be used
 set_board_info gdb_protocol "remote"

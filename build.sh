@@ -275,12 +275,15 @@ runTests() {
     # ? not sure what or1ksim does for the default configuration
     nameTerminal "Starting or1ksim in the background"
     ${OR1KSIM_INSTALL}/bin/sim -m8M --srv=50001 > ${BASEDIR}/test.log 2>&1 &
-
-    export CC_UNDER_TEST=${INSTALL}/bin/or1k-elf-clang
+    ORKSIM_PID=$!
 
     # run gcc tests using clang, the above symlink probably isn't necessary
     cd ${GCC_BUILD}/gcc
-    make check-gcc
+    nameTerminal "Running tests"
+    make check-gcc RUNTESTFLAGS="--tool_exec ${INSTALL}/bin/or1k-elf-clang"
+
+    nameTerminal "Killing ork1sim process"
+    kill ${ORKSIM_PID}
 }
 
 if [ "$1" = "bootstrap" ]; then
