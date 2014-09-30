@@ -7,42 +7,44 @@
 # Hopefully will always run tests using this script, but at the very least
 # PATH will need install/bin and or1ksim-install/bin in
 
-BASEDIR=`pwd`
+basedir=`pwd`
 
 # for make
-PARALLEL="-j12"
+build_parallel="-j12"
+
 
 # Beware: the install directory and build directories will be nuked at the
 # start of a clean build
-INSTALL=${BASEDIR}/install
+install=${basedir}/install
 
-BINUTILS_BUILD=${BASEDIR}/build/binutils
-BINUTILS_SRC=${BASEDIR}/or1k-src
+binutils_build=${basedir}/build/binutils
+binutils_src=${basedir}/or1k-src
 
-LLVM_BUILD=${BASEDIR}/build/llvm
-LLVM_SRC=${BASEDIR}/llvm-or1k
-CLANG_SRC=${BASEDIR}/clang-or1k
+llvm_build=${basedir}/build/llvm
+llvm_src=${basedir}/llvm-or1k
+clang_src=${basedir}/clang-or1k
 
-COMPILER_RT_BUILD=${BASEDIR}/build/compiler-rt
-COMPILER_RT_SRC=${BASEDIR}/compiler-rt-or1k
+compiler_rt_build=${basedir}/build/compiler-rt
+compiler_rt_src=${basedir}/compiler-rt-or1k
 
-NEWLIB_BUILD=${BASEDIR}/build/newlib
-NEWLIB_SRC=${BASEDIR}/or1k-src
+newlib_build=${basedir}/build/newlib
+newlib_src=${basedir}/or1k-src
 
-GCC_BUILD=${BASEDIR}/build/gcc
-GCC_SRC=${BASEDIR}/or1k-gcc
+gcc_build=${basedir}/build/gcc
+gcc_src=${basedir}/or1k-gcc
 
-OR1KSIM_BUILD=${BASEDIR}/build/or1ksim
-OR1KSIM_SRC=${BASEDIR}/or1ksim
-OR1KSIM_INSTALL=${BASEDIR}/or1ksim-install
+or1ksim_build=${basedir}/build/or1ksim
+or1ksim_src=${basedir}/or1ksim
+or1ksim_install=${basedir}/or1ksim-install
 
-CRUNTIME_BUILD=${BASEDIR}/build/cruntime
-CRUNTIME_SRC=${BASEDIR}/cruntime-or1k
+cruntime_build=${basedir}/build/cruntime
+cruntime_src=${basedir}/cruntime-or1k
 
-DEJAGNU_BUILD=${BASEDIR}/build/dejagnu
-DEJAGNU_SRC=${BASEDIR}/or1k-dejagnu
+dejagnu_build=${basedir}/build/dejagnu
+dejagnu_src=${basedir}/or1k-dejagnu
 
-OR1K_TOOLING=${BASEDIR}/or1k-tooling
+or1k_tooling=${basedir}/or1k-tooling
+
 
 # Set terminal title                                                            
 # @param string $1  Tab/window title                                            
@@ -65,9 +67,9 @@ mkcd() {
 
 
 binutilsConfig() {
-    rm -rf ${BINUTILS_BUILD}
-    mkcd ${BINUTILS_BUILD}
-    ${BINUTILS_SRC}/configure --prefix=${INSTALL} --target=or1k-elf \
+    rm -rf ${binutils_build}
+    mkcd ${binutils_build}
+    ${binutils_src}/configure --prefix=${install} --target=or1k-elf \
       --enable-shared --disable-itcl --disable-tk --disable-tcl \
       --disable-winsup --disable-libgui --disable-rda --disable-sid \
       --disable-sim --disable-gdb --with-sysroot --disable-newlib \
@@ -75,104 +77,104 @@ binutilsConfig() {
 }
 
 llvmConfig() {
-    rm -rf ${LLVM_BUILD}
+    rm -rf ${llvm_build}
 
     # ensure theres a symlink to clang in the tools directory
-    ln -sf ${CLANG_SRC} ${LLVM_SRC}/tools/clang
+    ln -sf ${clang_src} ${llvm_src}/tools/clang
 
-    mkcd ${LLVM_BUILD}
-    cmake ${LLVM_SRC} -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Debug \
-      -DCMAKE_INSTALL_PREFIX=${INSTALL} > config.log 2>&1
+    mkcd ${llvm_build}
+    cmake ${llvm_src} -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Debug \
+      -DCMAKE_install_PREFIX=${install} > config.log 2>&1
 }
 
 or1ksimConfig() {
-    rm -rf ${OR1KSIM_BUILD}
-    mkcd ${OR1KSIM_BUILD}
-    ${OR1KSIM_SRC}/configure --prefix=${OR1KSIM_INSTALL} > config.log 2>&1
+    rm -rf ${or1ksim_build}
+    mkcd ${or1ksim_build}
+    ${or1ksim_src}/configure --prefix=${or1ksim_install} > config.log 2>&1
 }
 
 # should be built after binutils and llvm/clang
 compilerrtConfig() {
     # ensure clang/binutils in the PATH
-    export PATH=${INSTALL}/bin:$PATH
+    export PATH=${install}/bin:$PATH
 
-    rm -rf ${COMPILER_RT_BUILD}
+    rm -rf ${compiler_rt_build}
 
     # hardcoded LLVM_CONFIG_PATH but it should be in path anyway
-    mkcd ${COMPILER_RT_BUILD}
-    cmake ${COMPILER_RT_SRC} \
-      -DCMAKE_INSTALL_PREFIX=${INSTALL} \
-      -DLLVM_CONFIG_PATH=${INSTALL}/bin/llvm-config \
-      -DCMAKE_C_COMPILER=${INSTALL}/bin/clang \
-      -DCMAKE_CXX_COMPILER=${INSTALL}/bin/clang++ \
+    mkcd ${compiler_rt_build}
+    cmake ${compiler_rt_src} \
+      -DCMAKE_install_PREFIX=${install} \
+      -DLLVM_CONFIG_PATH=${install}/bin/llvm-config \
+      -DCMAKE_C_COMPILER=${install}/bin/clang \
+      -DCMAKE_CXX_COMPILER=${install}/bin/clang++ \
       -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Debug > config.log 2>&1
 }
 
 # should be built after clang, binutils and or1ksim. Testing with or1ksim is
 # done via gdb so I don't think it's really necessary to link against it.
 newlibConfig() {
-    rm -rf ${NEWLIB_BUILD}
+    rm -rf ${newlib_build}
 
     # ensure clang/binutils in the path
-    export PATH=${INSTALL}/bin:${PATH}
+    export PATH=${install}/bin:${PATH}
 
     # add symlink to find clang when looking for or1k-elf cross compiler
-    ln -sf ${INSTALL}/bin/clang ${INSTALL}/bin/or1k-elf-cc
+    ln -sf ${install}/bin/clang ${install}/bin/or1k-elf-cc
 
-    mkcd ${NEWLIB_BUILD}
-    ${NEWLIB_SRC}/configure CC=${INSTALL}/bin/clang --prefix=${INSTALL} \
+    mkcd ${newlib_build}
+    ${newlib_src}/configure CC=${install}/bin/clang --prefix=${install} \
       --target=or1k-elf --enable-shared --disable-itcl --disable-tk \
       --disable-tcl --disable-winsup --disable-libgui --disable-rda \
       --disable-sid --enable-sim --enable-gdb --with-sysroot --enable-newlib \
-      --enable-libgloss --disable-werror --with-or1ksim=${OR1KSIM_INSTALL} \
+      --enable-libgloss --disable-werror --with-or1ksim=${or1ksim_install} \
       > config.log 2>&1
 }
 
 # should be built after clang and binutils
 cruntimeConfig() {
-    rm -rf ${CRUNTIME_BUILD}
+    rm -rf ${cruntime_build}
 
     # ensure clang/binutils in the path
-    export PATH=${INSTALL}/bin:${PATH}
+    export PATH=${install}/bin:${PATH}
 
     # no gcc cross compiler atm, use clang
-    mkcd ${CRUNTIME_BUILD}
-    cmake ${CRUNTIME_SRC} -DCMAKE_INSTALL_PREFIX=${INSTALL} \
-      -DCMAKE_C_COMPILER=${INSTALL}/bin/clang \
-      -DCMAKE_CXX_COMPILER=${INSTALL}/bin/clang++ > config.log 2>&1
+    mkcd ${cruntime_build}
+    cmake ${cruntime_src} -DCMAKE_install_PREFIX=${install} \
+      -DCMAKE_C_COMPILER=${install}/bin/clang \
+      -DCMAKE_CXX_COMPILER=${install}/bin/clang++ > config.log 2>&1
 }
 
 # configure gcc cross-compiler for or1k tests, may need to be done after newlib
 # built.
 gccConfig() {
-    rm -rf ${GCC_BUILD}
-    mkcd ${GCC_BUILD}
-    ${GCC_SRC}/configure --prefix=${INSTALL} --target=or1k-elf \
+    rm -rf ${gcc_build}
+    mkcd ${gcc_build}
+    ${gcc_src}/configure --prefix=${install} --target=or1k-elf \
       --enable-languages=c,c++ --disable-shared --disable-libssp --with-newlib \
       > config.log 2>&1
 }
 
 # don't think this has any dependencies
 dejagnuConfig() {
-    rm -rf ${DEJAGNU_BUILD}
-    mkcd ${DEJAGNU_BUILD}
-    ${DEJAGNU_SRC}/configure --prefix=${INSTALL} > config.log 2>&1
+    rm -rf ${dejagnu_build}
+    mkcd ${dejagnu_build}
+    ${dejagnu_src}/configure --prefix=${install} > config.log 2>&1
 }
 
 makeInstall() {
-    make V=1 VERBOSE=1 ${PARALLEL} > build.log 2>&1
-    make V=1 VERBOSE=1 ${PARALLEL} install > install.log 2>&1
+    make V=1 VERBOSE=1 ${build_parallel} > build.log 2>&1
+    make V=1 VERBOSE=1 ${build_parallel} install > install.log 2>&1
 }
 
 bootstrapAll() {
     nameTerminal "Deleting previous installations"
-    rm -rf ${INSTALL}
-    rm -rf ${OR1kSIM_INSTALL}
+    rm -rf ${install}
+    rm -rf ${or1ksim_install}
 
     nameTerminal "Configuring binutils"
     binutilsConfig
     nameTerminal "Building/Installing binutils"
-    cd ${BINUTILS_BUILD}
+    cd ${binutils_build}
     makeInstall
     if [ $? != 0 ]; then
         nameTerminal "Error binutils"
@@ -180,12 +182,12 @@ bootstrapAll() {
     fi
 
     # add new binutils to the path
-    export PATH=${INSTALL}/bin:${PATH}
+    export PATH=${install}/bin:${PATH}
 
     nameTerminal "Configuring LLVM/Clang"
     llvmConfig
     nameTerminal "Building/Installing llvm/clang"
-    cd ${LLVM_BUILD}
+    cd ${llvm_build}
     makeInstall
     if [ $? != 0 ]; then
         nameTerminal "Error: LLVM/Clang"
@@ -195,7 +197,7 @@ bootstrapAll() {
     nameTerminal "Configuring Compiler-RT"
     compilerrtConfig
     nameTerminal "Building/Installing compiler-rt"
-    cd ${COMPILER_RT_BUILD}
+    cd ${compiler_rt_build}
     makeInstall
     if [ $? != 0 ]; then
         nameTerminal "Error: Compiler-RT"
@@ -205,7 +207,7 @@ bootstrapAll() {
     nameTerminal "Configuring or1ksim"
     or1ksimConfig
     nameTerminal "Building/Installing or1ksim"
-    cd ${OR1KSIM_BUILD}
+    cd ${or1ksim_build}
     makeInstall
     if [ $? != 0 ]; then
         nameTerminal "Error: or1ksim"
@@ -213,12 +215,12 @@ bootstrapAll() {
     fi
 
     # add symlink to find clang when looking for or1k-elf cross compiler
-    ln -sf ${INSTALL}/bin/clang ${INSTALL}/bin/or1k-elf-cc
+    ln -sf ${install}/bin/clang ${install}/bin/or1k-elf-cc
 
     nameTerminal "Configuring newlib"
     newlibConfig
     nameTerminal "Building/Installing newlib"
-    cd ${NEWLIB_BUILD}
+    cd ${newlib_build}
     makeInstall
     if [ $? != 0 ]; then
         nameTerminal "Error: newlib"
@@ -228,7 +230,7 @@ bootstrapAll() {
     nameTerminal "Configuring c-runtime"
     cruntimeConfig
     nameTerminal "Building/Installing cruntime"
-    cd ${CRUNTIME_BUILD}
+    cd ${cruntime_build}
     makeInstall
     if [ $? != 0 ]; then
         nameTerminal "Error: c-runtime"
@@ -238,7 +240,7 @@ bootstrapAll() {
     nameTerminal "Configuring gcc"
     gccConfig
     nameTerminal "Building/Installing gcc"
-    cd ${GCC_BUILD}
+    cd ${gcc_build}
     makeInstall
     if [ $? != 0 ]; then
         nameTerminal "Error: gcc"
@@ -249,7 +251,7 @@ bootstrapAll() {
     nameTerminal "Configuring DejaGNU"
     dejagnuConfig
     nameTerminal "Building/Installing DejaGNU"
-    cd ${DEJAGNU_BUILD}
+    cd ${dejagnu_build}
     makeInstall
     if [ $? != 0 ]; then
         nameTerminal "Error: DejaGNU"
@@ -257,40 +259,55 @@ bootstrapAll() {
     fi
 }
 
+# $1 is the file containing the ports to be used
 runTests() {
-    # set up path to find utilites and the simulator
-    export PATH=${INSTALL}/bin:${PATH}
-    export PATH=${OR1KSIM_INSTALL}/bin:${PATH}
+    port_file=$1
 
+    # set up path to find utilites and the simulator
+    PATH=${install}/bin:${PATH}
+    PATH=${or1ksim_install}/bin:${PATH}
+    export PATH
+   
     # set up environment to find the test tools
-    export DEJAGNU=${OR1K_TOOLING}/site-or1ksim.exp
-    export DEJAGNULIBS=${INSTALL}/share/dejagnu
+    DEJAGNU=${or1k_tooling}/site.exp
+    DEJAGNULIBS=${install}/share/dejagnu
+    export DEJAGNU
+    export DEJAGNULIBS
 
     # ensure there's a symlink to clang so it cross compiles when testing
-    ln -sf ${INSTALL}/bin/clang ${INSTALL}/bin/or1k-elf-clang
+    ln -sf ${install}/bin/clang ${install}/bin/or1k-elf-clang
 
-    # start or1ksim to run the execution tests
-    # give it the desired port and basic memory setup
-    # chuck output in the base directory
-    # ? not sure what or1ksim does for the default configuration
-    nameTerminal "Starting or1ksim in the background"
-    ${OR1KSIM_INSTALL}/bin/sim -m8M --srv=50001 > ${BASEDIR}/test.log 2>&1 &
-    ORKSIM_PID=$!
+    # start multiple instances of or1ksim for each port in the port file
+    or1ksim_pids=""
+    while read port; do
+        # trim leading colon character
+        port_num=`echo ${port} | cut -c 2-`
+        ${or1ksim_install}/bin/sim -m8M --srv=${port_num} &
 
-    # run gcc tests using clang, the above symlink probably isn't necessary
-    cd ${GCC_BUILD}/gcc
+        or1ksim_pids="${!} ${or1ksim_pids}"
+    done < ${port_file}
+    n_ports=`wc -l ${port_file}`
+  
+    # export the port file so that the board definition can find it
+    PORT_FILE=${port_file}
+    export PORT_FILE
+
+    # run gcc execution tests using clang, above symlink probably isn't necessary
+    cd ${gcc_build}/gcc
     nameTerminal "Running tests"
-    make check-gcc RUNTESTFLAGS="--tool_exec ${INSTALL}/bin/or1k-elf-clang"
+    make -j${n_ports} check-gcc RUNTESTFLAGS="--tool_exec ${install}/bin/or1k-elf-clang"
 
-    nameTerminal "Killing ork1sim process"
-    kill ${ORKSIM_PID}
+    # delete the or1ksim processes
+    for pid in ${or1ksim_pids} ; do
+        kill ${pid}
+    done
 }
 
 if [ "$1" = "bootstrap" ]; then
     bootstrapAll
 fi
 if [ "$1" = "test" ]; then
-    runTests
+    runTests $2
 fi
 if [ "$1" = "config" ]; then
     if [ "$2" = "binutils" ]; then

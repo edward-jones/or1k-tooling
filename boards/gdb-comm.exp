@@ -418,7 +418,17 @@ proc gdb_comm_load { dest prog args } {
     gdb_comm_add_breakpoint abort
 
     set output ""
+
     
+    # send the gdb timeout
+    if {[target_info exists gdb,remote_timeout]} {
+        set remote_timeout [target_info gdb,remote_timeout]
+        remote_send host "monitor timeout $remote_timeout\n"
+    } else {
+        warning "No timeout set"
+    }
+
+
     # Now start up the program and look for our magic breakpoints.
     # And a whole lot of other magic stuff too.
 
@@ -427,12 +437,14 @@ proc gdb_comm_load { dest prog args } {
     } else {
 	remote_send host "run\n"
     }
+    
     # FIXME: The value 300 below should be a parameter.
     if {[board_info $dest exists testcase_timeout]} {
-	set testcase_timeout [board_info $dest testcase_timeout]
+    	set testcase_timeout [board_info $dest testcase_timeout]
     } else {
-	set testcase_timeout 300
+    	set testcase_timeout 300
     }
+
     remote_expect host $testcase_timeout {
 	-re "Line.*Jump anyway.*.y or n.*" {
 	    remote_send host "y\n"
