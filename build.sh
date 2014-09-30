@@ -84,7 +84,7 @@ llvmConfig() {
 
     mkcd ${llvm_build}
     cmake ${llvm_src} -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Debug \
-      -DCMAKE_install_PREFIX=${install} > config.log 2>&1
+      -DCMAKE_INSTALL_PREFIX=${install} > config.log 2>&1
 }
 
 or1ksimConfig() {
@@ -103,7 +103,7 @@ compilerrtConfig() {
     # hardcoded LLVM_CONFIG_PATH but it should be in path anyway
     mkcd ${compiler_rt_build}
     cmake ${compiler_rt_src} \
-      -DCMAKE_install_PREFIX=${install} \
+      -DCMAKE_INSTALL_PREFIX=${install} \
       -DLLVM_CONFIG_PATH=${install}/bin/llvm-config \
       -DCMAKE_C_COMPILER=${install}/bin/clang \
       -DCMAKE_CXX_COMPILER=${install}/bin/clang++ \
@@ -139,7 +139,7 @@ cruntimeConfig() {
 
     # no gcc cross compiler atm, use clang
     mkcd ${cruntime_build}
-    cmake ${cruntime_src} -DCMAKE_install_PREFIX=${install} \
+    cmake ${cruntime_src} -DCMAKE_INSTALL_PREFIX=${install} \
       -DCMAKE_C_COMPILER=${install}/bin/clang \
       -DCMAKE_CXX_COMPILER=${install}/bin/clang++ > config.log 2>&1
 }
