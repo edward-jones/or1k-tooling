@@ -83,6 +83,22 @@ proc gdb_comm_file_cmd { arg } {
     if {[is_remote host]} {
 	set arg [remote_download host $arg a.out]
     }
+
+    # make sure the previous file's symbol table is unloaded
+    # gdb may not correctly unload the symbols if the filename is the same
+    remote_send host "file\r"
+    remote_expect host 60 {
+        -re "Are you sure you want to change the file.*y or n.*$" {
+            remote_send host "y\r"
+            exp_continue
+        }
+        -re "Discard symbol table from.*y or n.*$" {
+            remote_send host "y\r"
+            exp_continue
+        }
+        -re "$gdb_prompt $"
+    }
+
     remote_send host "file $arg\n"
     remote_expect host 60 {
         -re "Reading symbols from.*done.*$gdb_prompt $" {
@@ -290,6 +306,7 @@ proc gdb_comm_load { dest prog args } {
 	gdb_comm_leave
 	return [gdb_comm_reload $dest $prog $args]
     }
+    
     if { [gdb_comm_file_cmd $prog] != 0 } {
 	gdb_comm_leave
 	return [gdb_comm_reload $dest $prog $args]
