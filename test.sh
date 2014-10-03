@@ -65,7 +65,7 @@ done < ${test_blacklist}
 ln -sf ${install}/bin/clang ${install}/bin/or1k-elf-clang
 
 cd ${gcc_build}/gcc
-make -j${n_ports} check-gcc RUNTESTFLAGS="execute.exp --tool_exec ${install}/bin/or1k-elf-clang"
+make -j${n_ports} check-gcc RUNTESTFLAGS="--tool_exec ${install}/bin/or1k-elf-clang"
 
 
 # rename blacklisted gcc tests back
