@@ -56,8 +56,20 @@ export PORT_FILE
 
 
 # rename blacklisted gcc tests so they won't be run
+# ignore comment lines and empty lines
 while read line; do
-    mv -f "${gcc_testdir}/${line}" "${gcc_testdir}/${line}.notest"
+    if [ "x$line" = "x" ] ; then
+        continue
+    fi
+    if [ `echo $line | cut -c 1` = "#" ] ; then
+        continue
+    fi
+
+    if [ -e "${gcc_testdir}/${line}" ] ; then
+        mv -i "${gcc_testdir}/${line}" "${gcc_testdir}/${line}.notest"
+    else
+        echo "Warning: Blacklisted test file ${gcc_testdir}/${line} does not exist\n"
+    fi
 done < ${test_blacklist}
 
 
@@ -70,7 +82,16 @@ make -j${n_ports} check-gcc RUNTESTFLAGS="--tool_exec ${install}/bin/or1k-elf-cl
 
 # rename blacklisted gcc tests back
 while read line; do
-    mv -f "${gcc_testdir}/${line}.notest" "${gcc_testdir}/${line}"
+    if [ "x$line" = "x" ] ; then
+        continue
+    fi
+    if [ `echo $line | cut -c 1` = "#" ] ; then
+        continue
+    fi
+
+    if [ -e "${gcc_testdir}/${line}.notest" ] ; then
+        mv -i "${gcc_testdir}/${line}.notest" "${gcc_testdir}/${line}"
+    fi
 done < ${test_blacklist}
 
 

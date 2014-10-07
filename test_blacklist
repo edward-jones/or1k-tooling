@@ -1,0 +1,136 @@
+# clang warning: 'extern inline' not supported in C99 mode
+gcc.c-torture/compile/20000120-2.c
+gcc.c-torture/compile/20011119-1.c
+gcc.c-torture/compile/20011119-2.c
+gcc.c-torture/compile/20050215-1.c
+gcc.c-torture/compile/20050215-2.c
+gcc.c-torture/compile/20050215-3.c
+gcc.dg/debug/20010207-1.c
+
+# clang warning: variable length array in structure extension will never be supported
+gcc.c-torture/compile/20010605-1.c
+gcc.c-torture/compile/20020210-1.c
+gcc.c-torture/compile/20030224-1.c
+gcc.c-torture/compile/20050801-2.c
+gcc.c-torture/compile/920428-4.c
+gcc.c-torture/compile/920501-16.c
+gcc.c-torture/compile/nested-1.c
+gcc.c-torture/compile/pr39394.c
+gcc.c-torture/compile/pr42956.c
+gcc.c-torture/execute/20020412-1.c
+gcc.c-torture/execute/20040308-1.c
+gcc.c-torture/execute/20040423-1.c
+gcc.c-torture/execute/20041218-2.c
+gcc.c-torture/execute/20070919-1.c
+gcc.c-torture/execute/align-nest.c
+gcc.c-torture/execute/pr41935.c
+gcc.dg/compat//struct-by-value-22_x.c
+gcc.dg/compat/struct-by-value-22_x.c
+gcc.dg/debug/pr33316.c
+gcc.dg/debug/pr39412.c
+gcc.dg/20050527-1.c
+gcc.dg/array-10.c
+gcc.dg/packed-vla.c
+gcc.dg/pr19345.c
+gcc.dg/pr27301.c
+gcc.dg/pr30189.c
+gcc.dg/pr33238.c
+gcc.dg/pr47766.c
+gcc.dg/pr51990-2.c
+gcc.dg/pr51990.c
+gcc.dg/vla-2.c
+gcc.dg/vla-22.c
+gcc.dg/vla-6.c
+gcc.dg/lto/20090706-1_0.c
+gcc.dg/torture/pr48953.c
+gcc.dg/torture/pr8081.c
+
+# clang error: illegal storage class on function
+# for some gcc expects a warning or error, but doesn't match the clang one
+gcc.c-torture/compile/20010903-2.c
+gcc.c-torture/compile/20011023-1.c
+gcc.dg/inline-28.c
+gcc.dg/inline-29.c
+gcc.dg/inline-30.c
+gcc.dg/pr18963-1.c
+gcc.dg/nested-func-3.c
+gcc.dg/noncompile/label-1.c
+# expect to fail but misses pattern
+gcc.dg/declspec-10.c
+gcc.dg/declspec-11.c
+gcc.dg/declspec-9.c
+gcc.dg/pr18596-1.c
+
+# clang error: illegal storage class on file-scoped variable
+gcc.dg/register-var-3.c
+
+# clang error: inline asm not supported yet: don't know how to handle tied indirect register input
+gcc.c-torture/compile/20000804-1.c
+
+# clang error: function definition is not allowed here
+# clang does not support GNU nested function extension
+# http://www.llvm.org/bugs/show_bug.cgi?id=6378
+gcc.c-torture/compile/20010226-1.c
+gcc.c-torture/compile/20010605-1.c
+gcc.c-torture/compile/20010903-2.c
+gcc.c-torture/compile/20021204-1.c
+gcc.c-torture/compile/20030418-1.c
+gcc.c-torture/compile/20030716-1.c
+gcc.c-torture/compile/20031011-1.c
+gcc.c-torture/compile/20040323-1.c
+gcc.c-torture/compile/20050122-2.c
+gcc.c-torture/execute/20000822-1.c
+gcc.c-torture/execute/20061220-1.c
+gcc.c-torture/execute/20090219-1.c
+gcc.c-torture/execute/comp-goto-2.c
+gcc.c-torture/execute/nest-align-1.c
+gcc.c-torture/execute/nest-stdar-1.c
+gcc.c-torture/execute/nestfunc-1.c
+gcc.c-torture/execute/nestfunc-2.c
+gcc.c-torture/execute/nestfunc-3.c
+gcc.c-torture/execute/nestfunc-5.c
+gcc.c-torture/execute/nestfunc-6.c
+gcc.c-torture/execute/nestfunc-7.c
+gcc.dg/torture/stackalign/comp-goto-1.c
+gcc.dg/torture/stackalign/nested-1.c
+gcc.dg/torture/stackalign/nested-2.c
+gcc.dg/torture/stackalign/nested-3.c
+gcc.dg/torture/stackalign/nested-4.c
+gcc.dg/torture/stackalign/nested-5.c
+gcc.dg/torture/stackalign/nested-6.c
+gcc.dg/torture/stackalign/non-local-goto-1.c
+gcc.dg/torture/stackalign/non-local-goto-2.c
+gcc.dg/torture/stackalign/non-local-goto-3.c
+gcc.dg/torture/stackalign/non-local-goto-4.c
+gcc.dg/torture/stackalign/non-local-goto-5.c
+
+# clang error: non-void function 'X' should return a value
+gcc.c-torture/compile/20020418-1.c
+gcc.c-torture/compile/20020927-1.c
+gcc.c-torture/compile/920415-1.c
+gcc.c-torture/compile/991026-2.c
+gcc.c-torture/compile/pr36172.c
+gcc.c-torture/execute/920302-1.c
+gcc.c-torture/execute/920415-1.c
+gcc.c-torture/execute/920501-3.c
+gcc.c-torture/execute/920728-1.c
+gcc.dg/lto/pr47924_0.c
+gcc.dg/noncompile/pr44517.c
+gcc.dg/tree-ssa/vrp27.c
+
+# clang error: static declaration of 'X' follows non-static declaration
+gcc.c-torture/compile/20021120-1.c
+gcc.c-torture/compile/20021120-2.c
+
+# clang error: initialization of flexible array member is not allowed
+gcc.c-torture/compile/pr28865.c
+# expected to fail but misses pattern
+gcc.c-torture/compile/20030305-1.c
+
+
+
+
+
+
+
+

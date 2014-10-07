@@ -259,55 +259,9 @@ bootstrapAll() {
     fi
 }
 
-# $1 is the file containing the ports to be used
-runTests() {
-    port_file=$1
-
-    # set up path to find utilites and the simulator
-    PATH=${install}/bin:${PATH}
-    PATH=${or1ksim_install}/bin:${PATH}
-    export PATH
-   
-    # set up environment to find the test tools
-    DEJAGNU=${or1k_tooling}/site.exp
-    DEJAGNULIBS=${install}/share/dejagnu
-    export DEJAGNU
-    export DEJAGNULIBS
-
-    # ensure there's a symlink to clang so it cross compiles when testing
-    ln -sf ${install}/bin/clang ${install}/bin/or1k-elf-clang
-
-    # start multiple instances of or1ksim for each port in the port file
-    or1ksim_pids=""
-    while read port; do
-        # trim leading colon character
-        port_num=`echo ${port} | cut -c 2-`
-        ${or1ksim_install}/bin/sim -m8M --srv=${port_num} &
-
-        or1ksim_pids="${!} ${or1ksim_pids}"
-    done < ${port_file}
-    n_ports=`wc -l ${port_file}`
-  
-    # export the port file so that the board definition can find it
-    PORT_FILE=${port_file}
-    export PORT_FILE
-
-    # run gcc execution tests using clang, above symlink probably isn't necessary
-    cd ${gcc_build}/gcc
-    nameTerminal "Running tests"
-    make -j${n_ports} check-gcc RUNTESTFLAGS="--tool_exec ${install}/bin/or1k-elf-clang"
-
-    # delete the or1ksim processes
-    for pid in ${or1ksim_pids} ; do
-        kill ${pid}
-    done
-}
 
 if [ "$1" = "bootstrap" ]; then
     bootstrapAll
-fi
-if [ "$1" = "test" ]; then
-    runTests $2
 fi
 if [ "$1" = "config" ]; then
     if [ "$2" = "binutils" ]; then
