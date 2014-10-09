@@ -57,6 +57,8 @@ export PORT_FILE
 
 # rename blacklisted gcc tests so they won't be run
 # ignore comment lines and empty lines
+# If a filename is duplicated, this throws a warning for the second occurence
+# Fix by sort -u on the file first
 while read line; do
     if [ "x$line" = "x" ] ; then
         continue
@@ -66,9 +68,9 @@ while read line; do
     fi
 
     if [ -e "${gcc_testdir}/${line}" ] ; then
-        mv -i "${gcc_testdir}/${line}" "${gcc_testdir}/${line}.notest"
+        mv "${gcc_testdir}/${line}" "${gcc_testdir}/${line}.notest"
     else
-        echo "Warning: Blacklisted test file ${gcc_testdir}/${line} does not exist\n"
+        echo "Warning: Blacklisted test file ${line} does not exist"
     fi
 done < ${test_blacklist}
 
