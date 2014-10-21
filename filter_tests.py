@@ -29,12 +29,16 @@ if not error_string:
 # make the search string ignore whitespace
 # This could cause very strange behaviour
 error_string = re.sub(' ', '\\s*', error_string)
-print >> sys.stderr, 'Warning: whitespaces have been replaced in the search string'
+print >>sys.stderr, 'Warning: whitespaces have been replaced in the search string'
 
 if filtering:
-    print >> sys.stderr, 'Filtering occurences of \'' + error_string + '\' from the input file'
+    print >>sys.stderr, 'Filtering occurences of \'' + error_string + '\' from the input file'
 else:
-    print >> sys.stderr, 'Finding occurences of \'' + error_string + '\' in the input file'
+    print >>sys.stderr, 'Finding occurences of \'' + error_string + '\' in the input file'
+
+
+# compile the error string into a regex object
+error_re = re.compile(error_string)
 
 
 line = sys.stdin.readline()
@@ -53,9 +57,9 @@ while line:
             else:
                 match_buffer += line
                 line = sys.stdin.readline()
- 
+
         # output a match if we are not filtering 
-        match = re.search(error_string, match_buffer)
+        match = error_re.search(match_buffer)
         if (not filtering) and match:
             sys.stdout.write(match_buffer)
         elif filtering and (not match):

@@ -59,20 +59,22 @@ export PORT_FILE
 # ignore comment lines and empty lines
 # If a filename is duplicated, this throws a warning for the second occurence
 # Fix by sort -u on the file first
-while read line; do
+sort -u ${test_blacklist} | while read line; do
     if [ "x$line" = "x" ] ; then
         continue
     fi
     if [ `echo $line | cut -c 1` = "#" ] ; then
         continue
     fi
+    
+    echo "Moving blacklisted file ${line}"
 
     if [ -e "${gcc_testdir}/${line}" ] ; then
         mv "${gcc_testdir}/${line}" "${gcc_testdir}/${line}.notest"
     else
-        echo "Warning: Blacklisted test file ${line} does not exist"
+        echo "Warning: Blacklisted test file ${gcc_testdir}/${line} does not exist"
     fi
-done < ${test_blacklist}
+done
 
 
 # run gcc execution tests using clang, clang symlink probably isn't necessary
@@ -82,19 +84,11 @@ cd ${gcc_build}/gcc
 make -j${n_ports} check-gcc RUNTESTFLAGS="--tool_exec ${install}/bin/or1k-elf-clang"
 
 
-# rename blacklisted gcc tests back
-while read line; do
-    if [ "x$line" = "x" ] ; then
-        continue
-    fi
-    if [ `echo $line | cut -c 1` = "#" ] ; then
-        continue
-    fi
-
-    if [ -e "${gcc_testdir}/${line}.notest" ] ; then
-        mv -i "${gcc_testdir}/${line}.notest" "${gcc_testdir}/${line}"
-    fi
-done < ${test_blacklist}
+# rename tests back
+for test_name in `find ${gcc_testdir} -name '*.notest'`; do
+    new_name=`echo ${test_name} | sed 's/.notest$//'`
+    mv -n ${test_name} ${new_name}
+done
 
 
 # delete the or1ksim processes
